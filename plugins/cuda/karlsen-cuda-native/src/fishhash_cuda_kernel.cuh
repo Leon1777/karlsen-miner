@@ -146,6 +146,9 @@ DEV_INLINE void hashFish(
 		hash512 seed; 
 		memset(seed.bytes, 0, 64);
 		memcpy(seed.bytes, in, 32);
+
+		const hash256 mix_hash = fishhash_kernel(*ctx, seed);
+		memcpy(out, mix_hash.bytes, 32);
 	}
 
 
