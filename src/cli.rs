@@ -37,9 +37,6 @@ pub struct Opt {
     #[clap(long, help = "Use devnet instead of mainnet [default: false]")]
     devnet: bool,
 
-    #[clap(short = 't', long = "threads", help = "Number of CPU miner threads to launch [default: 0]")]
-    pub num_threads: Option<u16>,
-
     #[clap(
         long = "mine-when-not-synced",
         help = "Mine even when karlsend is not synced",
@@ -86,8 +83,6 @@ impl Opt {
             self.karlsend_address = format!("grpc://{}:{}", karlsend, port);
         }
         log::info!("karlsend address: {}", self.karlsend_address);
-
-        self.num_threads.get_or_insert(0);
 
         let miner_network = self.mining_address.split(':').next();
         self.devfund_address = "karlsen:qzrq7v5jhsc5znvtfdg6vxg7dz5x8dqe4wrh90jkdnwehp6vr8uj7csdss2l7".to_string();
