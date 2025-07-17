@@ -89,7 +89,7 @@ pub(crate) enum StratumCommand {
 pub(crate) enum StratumResult {
     Plain(Option<bool>),
     Eth((bool, String)),
-    Subscribe((Vec<(String, String)>, String, u32)),
+    Subscribe((Option<Vec<(String, String)>>, String, u32)),
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -152,6 +152,11 @@ impl Decoder for NewLineJsonCodec {
     type Error = NewLineJsonCodecError;
 
     fn decode(&mut self, src: &mut BytesMut) -> Result<Option<Self::Item>, Self::Error> {
+        /*
+        if !src.is_empty() {
+            info!("stratum received: {:?}", String::from_utf8_lossy(src));
+        }
+        */
         match self.lines_codec.decode(src) {
             Ok(Some(s)) => {
                 serde_json::from_str::<StratumLine>(s.as_str()).map_err(|e| (e.to_string(), s).into()).map(Some)
