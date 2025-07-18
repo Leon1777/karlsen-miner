@@ -14,7 +14,7 @@ use std::ops::BitXor;
 use std::sync::{Arc, Weak};
 use tiny_keccak::Hasher;
 
-static BPS: f32 = 0.1;
+static BPS: f32 = 1.0;
 
 static PTX_86: &str = include_str!("../resources/karlsen-cuda-sm86.ptx");
 static PTX_75: &str = include_str!("../resources/karlsen-cuda-sm75.ptx");
