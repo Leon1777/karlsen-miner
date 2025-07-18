@@ -56,14 +56,14 @@ __device__ __inline__ void amul4bit(uint32_t packed_vec1[32], uint32_t packed_ve
 }
 
 extern "C" __global__ void generate_full_dataset_gpu(
-    int64_t light_cache_num_items, // int?
+    int light_cache_num_items, // 1179641
     hash512* light_cache,
-    int64_t full_dataset_num_items,
+    int full_dataset_num_items, // 37748717
     hash1024* full_dataset
 ) {
-    int64_t index = blockIdx.x * blockDim.x + threadIdx.x;
+    int index = blockIdx.x * blockDim.x + threadIdx.x;
     if (index % 1000000 == 0 && threadIdx.x == 0) {
-        printf("[GPU] Generating DAG item %lld / %lld\n", index, full_dataset_num_items);
+        printf("[GPU] Generating DAG item %d / %d\n", index, full_dataset_num_items);
     }
     if (index >= full_dataset_num_items) return;
 

@@ -28,9 +28,9 @@ typedef union {
 } hash1024;
 
 typedef struct {
-    const int64_t light_cache_num_items;
+    const int light_cache_num_items;
     const hash512* light_cache;
-    const int64_t full_dataset_num_items;
+    const int full_dataset_num_items;
     hash1024* full_dataset; // mutable for lazy loading?
 } fishhash_context;
 
