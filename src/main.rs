@@ -159,9 +159,9 @@ async fn main() -> Result<(), Error> {
     loop {
         match client_main(&opt, block_template_ctr.clone(), &plugin_manager).await {
             Ok(_) => info!("Client closed gracefully"),
-            Err(e) => error!("Client closed with error {:?}", e),
+            Err(e) => error!("Client closed with error: {:?}", e),
         }
-        info!("Client closed, reconnecting");
-        sleep(Duration::from_millis(100));
+        info!("Client closed, reconnecting in 5 seconds...");
+        sleep(Duration::from_secs(5));
     }
 }
