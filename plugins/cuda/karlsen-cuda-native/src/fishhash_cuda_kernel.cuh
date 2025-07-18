@@ -16,15 +16,13 @@
         (dst)[i] = (src)[i];         \
     }
 
-
-static DEV_INLINE uint32_t fnv1(uint32_t u, uint32_t v) noexcept {
-    return (u * FNV_PRIME) ^ v;
-}
+#define fnv(x, y)        ((x) * FNV_PRIME ^ (y))
+#define fnv_reduce(v)    fnv(fnv(fnv(v.x, v.y), v.z), v.w)
 
 DEV_INLINE hash512 fnv1(const hash512& u, const hash512& v) noexcept {
     hash512 r;
     for (size_t i = 0; i < sizeof(r) / sizeof(r.word32s[0]); ++i)
-        r.word32s[i] = fnv1(u.word32s[i], v.word32s[i]);
+        r.word32s[i] = fnv(u.word32s[i], v.word32s[i]);
     return r;
 }
 
@@ -47,7 +45,7 @@ typedef struct item_state
 
 	    DEV_INLINE void update(uint32_t round) noexcept {
 		    static constexpr size_t num_words = sizeof(mix) / sizeof(uint32_t);
-		    const uint32_t t = fnv1(seed ^ round, mix.word32s[round % num_words]);
+		    const uint32_t t = fnv(seed ^ round, mix.word32s[round % num_words]);
 		    const int64_t parent_index = t % num_cache_items;
 		    mix = fnv1(mix, cache[parent_index]);
 	    }
@@ -109,7 +107,7 @@ DEV_INLINE hash256 fishhash_kernel(const fishhash_context& ctx, const hash512& s
 
 			// Modify fetch1 and fetch2
 			for (size_t j = 0; j < 32; ++j) {
-				fetch1.word32s[j] = fnv1(mix.word32s[j], fetch1.word32s[j]);
+				fetch1.word32s[j] = fnv(mix.word32s[j], fetch1.word32s[j]);
 				fetch2.word32s[j] = mix.word32s[j] ^ fetch2.word32s[j];
 			}
 
@@ -122,10 +120,8 @@ DEV_INLINE hash256 fishhash_kernel(const fishhash_context& ctx, const hash512& s
 		hash256 mix_hash;
 		static constexpr size_t num_words = sizeof(mix) / sizeof(uint32_t);
 		for (size_t i = 0; i < num_words; i += 4) {
-			const uint32_t h1 = fnv1(mix.word32s[i], mix.word32s[i + 1]);
-			const uint32_t h2 = fnv1(h1, mix.word32s[i + 2]);
-			const uint32_t h3 = fnv1(h2, mix.word32s[i + 3]);
-			mix_hash.word32s[i / 4] = h3;
+			uint4 vec = make_uint4(mix.word32s[i], mix.word32s[i + 1], mix.word32s[i + 2], mix.word32s[i + 3]);
+			mix_hash.word32s[i / 4] = fnv_reduce(vec);
 		}
 
 		return mix_hash;
