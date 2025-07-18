@@ -384,11 +384,8 @@ impl CudaGPUWorker {
             return Err("Cuda compute version not supported".into());
         }
 
-        info!("Step 4: PTX loaded successfully");
-        info!("Step 5: Creating stream");
         let stream = Stream::new(StreamFlags::NON_BLOCKING, None)?;
 
-        info!("Step 6: Building light cache");
         let mut light_cache = vec![Hash512::default(); LIGHT_CACHE_NUM_ITEMS.try_into().unwrap()];
         build_light_cache_cpu(&mut light_cache, SEED);
         let cache2 = DeviceBuffer::<Hash512>::from_slice(&light_cache)?;
