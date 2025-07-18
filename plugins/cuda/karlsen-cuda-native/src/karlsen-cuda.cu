@@ -5,7 +5,6 @@
 #include "fishhash_cuda_kernel.cuh"
 
 
-
 typedef uint8_t Hash[32];
 
 typedef union _uint256_t {
@@ -14,9 +13,6 @@ typedef union _uint256_t {
 } uint256_t;
 
 #define BLOCKDIM 1024
-#define MATRIX_SIZE 64
-#define HALF_MATRIX_SIZE 32
-#define QUARTER_MATRIX_SIZE 16
 #define HASH_HEADER_SIZE 72
 #define LIGHT_CACHE_NUM_ITEMS 1179641
 
@@ -29,31 +25,8 @@ DEV_INLINE void keccak_in_place(uint8_t* data) {
 
 #define LT_U256(X,Y) (X.number[3] != Y.number[3] ? X.number[3] < Y.number[3] : X.number[2] != Y.number[2] ? X.number[2] < Y.number[2] : X.number[1] != Y.number[1] ? X.number[1] < Y.number[1] : X.number[0] < Y.number[0])
 
-__constant__ uint8_t matrix[MATRIX_SIZE][MATRIX_SIZE];
 __constant__ uint8_t hash_header[HASH_HEADER_SIZE];
 __constant__ uint256_t target;
-
-__device__ __inline__ void amul4bit(uint32_t packed_vec1[32], uint32_t packed_vec2[32], uint32_t *ret) {
-    // We assume each 32 bits have four values: A0 B0 C0 D0
-    unsigned int res = 0;
-    #if __CUDA_ARCH__ < 610
-    char4 *a4 = (char4*)packed_vec1;
-    char4 *b4 = (char4*)packed_vec2;
-    #endif
-    #pragma unroll
-    for (int i=0; i<QUARTER_MATRIX_SIZE; i++) {
-        #if __CUDA_ARCH__ >= 610
-        res = __dp4a(packed_vec1[i], packed_vec2[i], res);
-        #else
-        res += a4[i].x*b4[i].x;
-        res += a4[i].y*b4[i].y;
-        res += a4[i].z*b4[i].z;
-        res += a4[i].w*b4[i].w;
-        #endif
-    }
-
-    *ret = res;
-}
 
 extern "C" __global__ void generate_full_dataset_gpu(
     int light_cache_num_items, // 1179641
