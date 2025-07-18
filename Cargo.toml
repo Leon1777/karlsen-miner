@@ -71,3 +71,6 @@ time = { version = "0.3", features = ["formatting"] }
 [workspace]
 members = ["plugins/*"]
 default-members = [".", "plugins/cuda"]
+
+[lints.clippy]
+uninlined_format_args = "allow"

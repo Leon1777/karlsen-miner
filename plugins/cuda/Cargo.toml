@@ -21,3 +21,6 @@ crate-type = ["cdylib", "rlib"]
 
 [features]
 overclock = [ "nvml-wrapper" ]
+
+[lints.clippy]
+uninlined_format_args = "allow"
