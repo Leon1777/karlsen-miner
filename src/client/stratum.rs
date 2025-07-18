@@ -336,7 +336,7 @@ impl StratumHandler {
             StratumLine {
                 id: Some(id),
                 payload: StratumLinePayload::StratumResult { .. },
-                error: Some(StratumError(code, error, _)),
+                error: Some(StratumError { code, message: error, .. }),
                 ..
             } => {
                 let jobid = { self.shares_stats.shares_pending.try_lock().unwrap().remove(&id) }.unwrap();
