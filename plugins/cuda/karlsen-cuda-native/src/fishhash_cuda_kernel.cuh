@@ -91,9 +91,13 @@ DEV_INLINE hash1024 lookup(const fishhash_context& ctx, uint32_t index) {
 DEV_INLINE hash256 fishhash_kernel(const fishhash_context& ctx, const hash512& seed) noexcept {
 		const uint32_t index_limit = static_cast<uint32_t>(ctx.full_dataset_num_items);
 		hash1024 mix{seed, seed};
+		
+		#pragma unroll
 		for (uint32_t i = 0; i < NUM_DATASET_ACCESSES; ++i) {
 			uint32_t mixGroup[8]; 
-			for (uint32_t c=0; c<8; c++) {
+
+			#pragma unroll
+			for (uint32_t c = 0; c < 8; c++) {
 				mixGroup[c] = (mix.word32s[4*c + 0] ^ mix.word32s[4*c + 1] ^ mix.word32s[4*c + 2] ^ mix.word32s[4*c + 3]);
 			}
 
@@ -106,19 +110,24 @@ DEV_INLINE hash256 fishhash_kernel(const fishhash_context& ctx, const hash512& s
 			hash1024 fetch2 = lookup(ctx, p2);
 
 			// Modify fetch1 and fetch2
+			#pragma unroll
 			for (size_t j = 0; j < 32; ++j) {
 				fetch1.word32s[j] = fnv(mix.word32s[j], fetch1.word32s[j]);
 				fetch2.word32s[j] = mix.word32s[j] ^ fetch2.word32s[j];
 			}
 
 	     	// Final computation of new mix
-			for (size_t j = 0; j < 16; ++j)
+			#pragma unroll
+			for (size_t j = 0; j < 16; ++j) {
 				mix.word64s[j] = fetch0.word64s[j] * fetch1.word64s[j] + fetch2.word64s[j];
+			}
 		}
 
 		// Collapse the result into 32 bytes
 		hash256 mix_hash;
 		static constexpr size_t num_words = sizeof(mix) / sizeof(uint32_t);
+		
+		#pragma unroll
 		for (size_t i = 0; i < num_words; i += 4) {
 			uint4 vec = make_uint4(mix.word32s[i], mix.word32s[i + 1], mix.word32s[i + 2], mix.word32s[i + 3]);
 			mix_hash.word32s[i / 4] = fnv_reduce(vec);
