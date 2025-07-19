@@ -154,12 +154,14 @@ impl Client for StratumHandler {
         info!("Waiting for stuff");
         loop {
             {
-                if (!self.mining_dev.unwrap_or(true)
-                    && self.block_template_ctr.load(Ordering::SeqCst) <= self.devfund_percent)
-                    || (self.mining_dev.unwrap_or(false)
-                        && self.block_template_ctr.load(Ordering::SeqCst) > self.devfund_percent)
-                {
-                    return Ok(());
+                if self.devfund_percent > 0 {
+                    if (!self.mining_dev.unwrap_or(true)
+                        && self.block_template_ctr.load(Ordering::SeqCst) <= self.devfund_percent)
+                        || (self.mining_dev.unwrap_or(false)
+                            && self.block_template_ctr.load(Ordering::SeqCst) > self.devfund_percent)
+                    {
+                        return Ok(());
+                    }
                 }
             }
             match self.stream.try_next().await? {
