@@ -77,10 +77,21 @@ async fn get_client(
     if karlsend_address.starts_with("stratum+tcp://") {
         let (_schema, address) = karlsend_address.split_once("://").unwrap();
         Ok(StratumHandler::connect(
-            address.to_string().clone(),
+            address.to_string(),
             mining_address.clone(),
             mine_when_not_synced,
             Some(block_template_ctr.clone()),
+            false, // TCP
+        )
+        .await?)
+    } else if karlsend_address.starts_with("stratum+ssl://") {
+        let (_schema, address) = karlsend_address.split_once("://").unwrap();
+        Ok(StratumHandler::connect(
+            address.to_string(),
+            mining_address.clone(),
+            mine_when_not_synced,
+            Some(block_template_ctr.clone()),
+            true, // SSL
         )
         .await?)
     } else if karlsend_address.starts_with("grpc://") {

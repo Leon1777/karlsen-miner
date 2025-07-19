@@ -48,6 +48,8 @@ num = "0.4"
 nix = "0.25"
 hex = "0.4"
 time = { version = "0.3", features = ["formatting", "macros"] }
+tokio-native-tls = "0.3"
+native-tls = "0.2"
 
 [features]
 default = ["parking_lot"]
